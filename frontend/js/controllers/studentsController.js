@@ -10,10 +10,17 @@
 
 import { studentsAPI } from '../api/studentsAPI.js';
 
+//2.0
+//For pagination:
+let currentPage = 1;
+let totalPages = 1;
+const limit = 5;
+
 document.addEventListener('DOMContentLoaded', () => {   // Cargar cuando el DOM esté listo
-    loadStudents();         // Cargar y mostrar la lista de estudiantes
-    setupFormHandler();     // Configurar el manejador del formulario
-    setupCancelHandler();   // Configurar el botón de cancelar
+    loadStudents();             // Cargar y mostrar la lista de estudiantes
+    setupFormHandler();         // Configurar el manejador del formulario
+    setupCancelHandler();       // Configurar el botón de cancelar
+    setupPaginationControls();  // 2.0 - Configurar controles de paginación
 });
   
 function setupFormHandler() {     // Configurar el envio del formulario
@@ -43,7 +50,35 @@ function setupCancelHandler() {   // Configurar el botón de cancelar
         document.getElementById('studentId').value = '';    // Limpia el campo oculto de ID
     });
 }
-  
+
+//2.0
+function setupPaginationControls() // Configurar controles de paginación
+{
+    document.getElementById('prevPage').addEventListener('click', () => 
+    {
+        if (currentPage > 1) 
+        {
+            currentPage--;
+            loadStudents();
+        }
+    });
+
+    document.getElementById('nextPage').addEventListener('click', () => 
+    {
+        if (currentPage < totalPages) 
+        {
+            currentPage++;
+            loadStudents();
+        }
+    });
+
+    document.getElementById('resultsPerPage').addEventListener('change', e => 
+    {
+        currentPage = 1;
+        loadStudents();
+    });
+}
+
 function getFormData() {          // Obtener datos del formulario
     return {
         id: document.getElementById('studentId').value.trim(),          // Campo oculto para ID
@@ -60,7 +95,8 @@ function clearForm() {            // Limpiar el formulario
     //reset() restablece todos los campos del formulario a sus valores iniciales
     document.getElementById('studentId').value = '';
 }
-  
+/*//////////  1.0 LOAD STUDENTS SIN PAGINACIÓN //////////    
+
 async function loadStudents() {   //Carga desde el backend y los muestra en la tabla
     try {
         const students = await studentsAPI.fetchAll();
@@ -70,8 +106,26 @@ async function loadStudents() {   //Carga desde el backend y los muestra en la t
     catch (err) {
         console.error('Error cargando estudiantes:', err.message);
     }
+}*/
+
+////////////// 2.0 LOAD STUDENTS CON PAGINACIÓN //////////
+async function loadStudents()
+{
+    try 
+    {
+        const resPerPage = parseInt(document.getElementById('resultsPerPage').value, 10) || limit;
+        const data = await studentsAPI.fetchPaginated(currentPage, resPerPage);
+        console.log(data);
+        renderStudentTable(data.students);
+        totalPages = Math.ceil(data.total / resPerPage);
+        document.getElementById('pageInfo').textContent = `Página ${currentPage} de ${totalPages}`;
+    } 
+    catch (err) 
+    {
+        console.error('Error cargando estudiantes:', err.message);
+    }
 }
-  
+
 function renderStudentTable(students) {   // Renderiza la tabla de estudiantes
     const tbody = document.getElementById('studentTableBody');  // Cuerpo de la tabla donde se mostrarán los estudiantes
     tbody.replaceChildren();    // Limpia el contenido existente

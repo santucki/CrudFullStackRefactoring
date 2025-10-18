@@ -11,7 +11,7 @@
 
 require_once("./repositories/subjects.php");
 
-function handleGet($conn) 
+/*function handleGet($conn)                     1.0 HANDLE GET
 {
     $input = json_decode(file_get_contents("php://input"), true);
 
@@ -23,6 +23,32 @@ function handleGet($conn)
     else 
     {
         $subjects = getAllSubjects($conn);
+        echo json_encode($subjects);
+    }
+}*/
+
+//2.0 HANDLE GET with Pagination
+function handleGet($conn) {
+    if (isset($_GET['id'])) {
+        $subject = getSubjectById($conn, $_GET['id']);
+        echo json_encode($subject);
+    } 
+    //2.0
+    else if (isset($_GET['page']) && isset($_GET['limit'])) {
+        $page = (int)$_GET['page'];
+        $limit = (int)$_GET['limit']; 
+        $offset = ($page - 1) * $limit;
+
+        $subjects = getPaginatedSubjects($conn, $limit, $offset);
+        $total = getTotalSubjects($conn);
+
+        echo json_encode([
+            'subjects' => $subjects, // ya es array
+            'total' => $total        // ya es entero
+        ]);
+    }
+    else {
+        $subjects = getAllSubjects($conn); // ya es array
         echo json_encode($subjects);
     }
 }
