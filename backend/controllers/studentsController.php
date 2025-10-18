@@ -11,65 +11,53 @@
 
 require_once("./repositories/students.php");
 
-function handleGet($conn) 
-{
+function handleGet($conn) {
     $input = json_decode(file_get_contents("php://input"), true);
     
-    if (isset($input['id'])) 
-    {
+    if (isset($input['id'])) {
         $student = getStudentById($conn, $input['id']);
         echo json_encode($student);
     } 
-    else
-    {
+    else{
         $students = getAllStudents($conn);
         echo json_encode($students);
     }
 }
 
-function handlePost($conn) 
-{
+function handlePost($conn) {
     $input = json_decode(file_get_contents("php://input"), true);
 
     $result = createStudent($conn, $input['fullname'], $input['email'], $input['age']);
-    if ($result['inserted'] > 0) 
-    {
+    if ($result['inserted'] > 0) {
         echo json_encode(["message" => "Estudiante agregado correctamente"]);
     } 
-    else 
-    {
+    else {
         http_response_code(500);
         echo json_encode(["error" => "No se pudo agregar"]);
     }
 }
 
-function handlePut($conn) 
-{
+function handlePut($conn) {
     $input = json_decode(file_get_contents("php://input"), true);
 
     $result = updateStudent($conn, $input['id'], $input['fullname'], $input['email'], $input['age']);
-    if ($result['updated'] > 0) 
-    {
+    if ($result['updated'] > 0) {
         echo json_encode(["message" => "Actualizado correctamente"]);
     } 
-    else 
-    {
+    else {
         http_response_code(500);
         echo json_encode(["error" => "No se pudo actualizar"]);
     }
 }
 
-function handleDelete($conn) 
-{
+function handleDelete($conn) {
     $input = json_decode(file_get_contents("php://input"), true);
 
     $result = deleteStudent($conn, $input['id']);
-    if ($result['deleted'] > 0) 
-    {
+    if ($result['deleted'] > 0) {
         echo json_encode(["message" => "Eliminado correctamente"]);
     } 
-    else 
-    {
+    else {
         http_response_code(500);
         echo json_encode(["error" => "No se pudo eliminar"]);
     }

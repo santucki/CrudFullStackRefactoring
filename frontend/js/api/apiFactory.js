@@ -8,9 +8,9 @@
 *    Iteration   : 3.0 ( prototype )
 */
 
-export function createAPI(moduleName, config = {}) 
+export function createAPI(moduleName, config = {})
 {
-    const API_URL = config.urlOverride ?? `../../backend/server.php?module=${moduleName}`;
+    const API_URL = config.urlOverride ?? `../../../backend/server.php?module=${moduleName}`;
 
     async function sendJSON(method, data) 
     {
